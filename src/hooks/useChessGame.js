@@ -1,6 +1,7 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Chess } from 'chess.js';
 import { getGameStatus } from '../lib/gameStatus';
+import { loadCurrentGame, saveCurrentGame, clearCurrentGame } from '../lib/storage';
 
 /**
  * Helper to check if a move from source to target is a pawn promotion move.
@@ -20,12 +21,28 @@ export function isPromotionMove(game, from, to) {
 /**
  * Custom hook managing the chess game state.
  * Single source of truth is the PGN string (TR-002, RULE-004).
- * All rules and state transitions are derived via chess.js (RULE-003).
+ * Auto-saves and restores via lib/storage.js (FR-008, TR-005, NFR-005).
  */
-export function useChessGame(initialPgn = '', initialOrientation = 'white') {
-  const [pgn, setPgn] = useState(initialPgn);
-  const [orientation, setOrientation] = useState(initialOrientation);
+export function useChessGame(initialPgn = null, initialOrientation = null) {
+  // Load saved state once at startup (TR-005, NFR-005)
+  const [pgn, setPgn] = useState(() => {
+    if (initialPgn !== null) return initialPgn;
+    const saved = loadCurrentGame();
+    return saved?.pgn || '';
+  });
+
+  const [orientation, setOrientation] = useState(() => {
+    if (initialOrientation !== null) return initialOrientation;
+    const saved = loadCurrentGame();
+    return saved?.orientation || 'white';
+  });
+
   const [pendingPromotion, setPendingPromotion] = useState(null);
+
+  // Auto-save on state change (FR-008, TR-005)
+  useEffect(() => {
+    saveCurrentGame({ pgn, orientation });
+  }, [pgn, orientation]);
 
   // Derive Chess instance from PGN single source of truth
   const game = useMemo(() => {
@@ -54,8 +71,6 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
 
   /**
    * Attempts to make a move via chess.js (RULE-003, FR-002, FR-009).
-   * If the move is a pawn promotion and no promotion piece is provided,
-   * it stages pendingPromotion and returns false.
    */
   const makeMove = useCallback(
     (from, to, promotion) => {
@@ -84,7 +99,6 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
 
         const isPromo = matchingMoves.some((m) => Boolean(m.promotion));
 
-        // If promotion move and no promotion piece chosen, stage it
         if (isPromo && !promotion) {
           setPendingPromotion({ from, to, color: tempGame.turn() });
           return false;
@@ -101,12 +115,10 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
           return false;
         }
 
-        // Update single source of truth PGN state and clear any pending promotion
         setPgn(tempGame.pgn());
         setPendingPromotion(null);
         return true;
       } catch (err) {
-        // Prevent chess.js exception from crashing UI (RULE-011)
         console.error('Move validation error:', err);
         return false;
       }
@@ -116,7 +128,6 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
 
   /**
    * Undoes the last move (FR-007, TR-007).
-   * Drops the last move from history, updates PGN, and clears pending promotion.
    */
   const undo = useCallback(() => {
     if (history.length === 0) {
@@ -144,11 +155,12 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
   }, [history.length, pgn]);
 
   /**
-   * Resets the game to the starting position (FR-006).
+   * Resets the game to the starting position and clears storage (FR-006, database.md).
    */
   const newGame = useCallback(() => {
     setPgn('');
     setPendingPromotion(null);
+    clearCurrentGame();
     return true;
   }, []);
 

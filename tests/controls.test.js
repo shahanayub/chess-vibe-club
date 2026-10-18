@@ -157,3 +157,4 @@ describe('Controls, Undo, and New Game (FR-006, FR-007, TASK-008)', () => {
     expect(controller.getGame().history()).toEqual(['f3', 'e5', 'g4', 'd5']);
   });
 });
+
