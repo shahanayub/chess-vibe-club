@@ -84,3 +84,4 @@ describe('lib/history.js move grouping (FR-004, TASK-006)', () => {
     expect(rows[11].black).toBe('Qxe3+');
   });
 });
+

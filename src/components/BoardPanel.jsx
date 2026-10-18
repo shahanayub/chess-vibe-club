@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
+import PromotionPicker from './PromotionPicker';
 
 /**
  * Presentational board panel rendering the chessboard using react-chessboard options prop.
  * Matches design.md colors: board-light (#EEEED2) and board-dark (#769656).
+ * Renders PromotionPicker modal overlay on pawn reaching the final rank (FR-009).
  */
 export default function BoardPanel({
   fen,
@@ -11,6 +13,9 @@ export default function BoardPanel({
   onPieceDrop,
   canDragPiece,
   customSquareStyles = {},
+  pendingPromotion = null,
+  onPromotionSelect,
+  onPromotionCancel,
 }) {
   const chessboardOptions = useMemo(() => {
     const opts = {
@@ -33,12 +38,20 @@ export default function BoardPanel({
 
   return (
     <div
-      className="w-full max-w-[640px] aspect-square mx-auto rounded-lg overflow-hidden shadow-md border border-slate-200 bg-white"
+      className="relative w-full max-w-[640px] aspect-square mx-auto rounded-lg overflow-hidden shadow-md border border-slate-200 bg-white"
       data-testid="chessboard-panel"
       role="region"
       aria-label="Interactive Chess Board"
     >
       <Chessboard options={chessboardOptions} />
+
+      {pendingPromotion && (
+        <PromotionPicker
+          color={pendingPromotion.color}
+          onSelect={onPromotionSelect}
+          onCancel={onPromotionCancel}
+        />
+      )}
     </div>
   );
 }

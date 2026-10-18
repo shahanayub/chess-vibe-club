@@ -5,8 +5,18 @@ import StatusBar from './components/StatusBar';
 import MoveHistory from './components/MoveHistory';
 
 export default function App() {
-  const { fen, orientation, turn, isGameOver, history, status, makeMove } =
-    useChessGame();
+  const {
+    fen,
+    orientation,
+    turn,
+    isGameOver,
+    history,
+    status,
+    makeMove,
+    pendingPromotion,
+    confirmPromotion,
+    cancelPromotion,
+  } = useChessGame();
 
   const handlePieceDrop = useCallback(
     ({ sourceSquare, targetSquare }) => {
@@ -20,13 +30,13 @@ export default function App() {
 
   const handleCanDragPiece = useCallback(
     ({ piece }) => {
-      if (isGameOver || !piece?.pieceType) {
+      if (isGameOver || pendingPromotion || !piece?.pieceType) {
         return false;
       }
       // Only the current turn's pieces are draggable (FR-002)
       return piece.pieceType[0] === turn;
     },
-    [isGameOver, turn]
+    [isGameOver, pendingPromotion, turn]
   );
 
   return (
@@ -56,6 +66,9 @@ export default function App() {
             orientation={orientation}
             onPieceDrop={handlePieceDrop}
             canDragPiece={handleCanDragPiece}
+            pendingPromotion={pendingPromotion}
+            onPromotionSelect={confirmPromotion}
+            onPromotionCancel={cancelPromotion}
           />
         </section>
 
