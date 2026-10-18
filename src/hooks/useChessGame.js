@@ -46,6 +46,7 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
   const isGameOver = useMemo(() => game.isGameOver(), [game]);
   const history = useMemo(() => game.history(), [game]);
   const status = useMemo(() => getGameStatus(game), [game]);
+  const canUndo = useMemo(() => history.length > 0, [history.length]);
 
   const flipOrientation = useCallback(() => {
     setOrientation((prev) => (prev === 'white' ? 'black' : 'white'));
@@ -114,6 +115,44 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
   );
 
   /**
+   * Undoes the last move (FR-007, TR-007).
+   * Drops the last move from history, updates PGN, and clears pending promotion.
+   */
+  const undo = useCallback(() => {
+    if (history.length === 0) {
+      return false;
+    }
+
+    const tempGame = new Chess();
+    if (pgn && pgn.trim() !== '') {
+      try {
+        tempGame.loadPgn(pgn);
+      } catch {
+        return false;
+      }
+    }
+
+    const undoneMove = tempGame.undo();
+    if (!undoneMove) {
+      return false;
+    }
+
+    const newPgn = tempGame.history().length === 0 ? '' : tempGame.pgn();
+    setPgn(newPgn);
+    setPendingPromotion(null);
+    return true;
+  }, [history.length, pgn]);
+
+  /**
+   * Resets the game to the starting position (FR-006).
+   */
+  const newGame = useCallback(() => {
+    setPgn('');
+    setPendingPromotion(null);
+    return true;
+  }, []);
+
+  /**
    * Completes a staged promotion move with the chosen piece (q, r, b, n).
    */
   const confirmPromotion = useCallback(
@@ -139,6 +178,9 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
     isGameOver,
     history,
     status,
+    canUndo,
+    undo,
+    newGame,
     pgn,
     setPgn,
     orientation,
