@@ -8,3 +8,4 @@ describe('Environment smoke test', () => {
     expect(chess.isGameOver()).toBe(false);
   });
 });
+

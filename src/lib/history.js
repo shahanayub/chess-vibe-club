@@ -1,3 +1,4 @@
 export function formatMoveHistory() {
   return [];
 }
+

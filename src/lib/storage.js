@@ -12,3 +12,4 @@ export function saveCurrentGame() {
 export function clearCurrentGame() {
   return false;
 }
+
