@@ -78,7 +78,7 @@ export default function PromotionPicker({ color = 'w', onSelect, onCancel }) {
         <button
           type="button"
           onClick={onCancel}
-          className="w-full py-2.5 px-4 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-slate-400 transition-colors min-h-[44px] cursor-pointer"
+          className="w-full py-2.5 px-4 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 transition-colors min-h-[44px] cursor-pointer"
         >
           Cancel Move
         </button>
