@@ -136,3 +136,4 @@ describe('lib/gameStatus.js derivation (FR-003, FR-005, TASK-005)', () => {
     expect(status.isGameOver).toBe(false);
   });
 });
+
