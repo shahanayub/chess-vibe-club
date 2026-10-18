@@ -121,3 +121,4 @@ describe('Legal move handling and validation (FR-002, TASK-004)', () => {
     expect(helper.makeMove('e1', 'f2')).toBe(false);
   });
 });
+

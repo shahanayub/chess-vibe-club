@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Chess } from 'chess.js';
+import { getGameStatus } from '../lib/gameStatus';
 
 /**
  * Custom hook managing the chess game state.
@@ -28,6 +29,7 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
   const turn = useMemo(() => game.turn(), [game]);
   const isGameOver = useMemo(() => game.isGameOver(), [game]);
   const history = useMemo(() => game.history(), [game]);
+  const status = useMemo(() => getGameStatus(game), [game]);
 
   const flipOrientation = useCallback(() => {
     setOrientation((prev) => (prev === 'white' ? 'black' : 'white'));
@@ -91,6 +93,7 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
     turn,
     isGameOver,
     history,
+    status,
     pgn,
     setPgn,
     orientation,
