@@ -34,6 +34,7 @@ export default function PromotionPicker({ color = 'w', onSelect, onCancel }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="promotion-title"
+      aria-describedby="promotion-desc"
     >
       <div
         ref={modalRef}
@@ -46,19 +47,21 @@ export default function PromotionPicker({ color = 'w', onSelect, onCancel }) {
           >
             Promote Pawn
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p id="promotion-desc" className="text-xs text-slate-500 mt-1">
             Choose a piece to promote your pawn:
           </p>
         </div>
 
         {/* Piece selection grid */}
         <div className="grid grid-cols-2 gap-3 w-full">
-          {pieces.map(({ key, name, symbol }) => (
+          {pieces.map(({ key, name, symbol }, idx) => (
             <button
               key={key}
               type="button"
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus={idx === 0}
               onClick={() => onSelect(key)}
-              className="flex flex-col items-center justify-center p-4 rounded-lg border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all min-h-[56px] cursor-pointer"
+              className="flex flex-col items-center justify-center p-4 rounded-lg border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all min-h-[56px] cursor-pointer"
               aria-label={`Promote to ${name}`}
             >
               <span className="text-4xl select-none leading-none mb-1 text-slate-800">

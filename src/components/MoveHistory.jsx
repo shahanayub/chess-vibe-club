@@ -31,7 +31,7 @@ export default function MoveHistory({ history = [] }) {
       </div>
 
       <div
-        className="h-48 sm:h-56 overflow-y-auto p-2 scroll-smooth"
+        className="h-48 sm:h-56 lg:h-72 xl:h-80 overflow-y-auto p-2 scroll-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
         tabIndex="0"
         role="region"
         aria-label="Scrollable move history table"

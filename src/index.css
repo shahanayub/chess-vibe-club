@@ -2,3 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- Base resets & design tokens (design.md, NFR-004) --- */
+@layer base {
+  /* Prevent horizontal overflow at narrow viewports (360px+, NFR-002) */
+  html {
+    overflow-x: hidden;
+    /* Smooth scroll for auto-scroll behaviors */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    overflow-x: hidden;
+    /* Improve touch responsiveness */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Ensure focus rings are always visible (NFR-004).
+     Tailwind resets outline by default; we restore meaningful focus-visible rings. */
+  *:focus-visible {
+    outline: 2px solid #4f46e5; /* indigo-600 – matches primary design token */
+    outline-offset: 2px;
+  }
+
+  /* Touch targets – minimum 44x44px tap area for all interactive elements (design.md, NFR-004) */
+  button,
+  [role="button"],
+  a {
+    touch-action: manipulation;
+  }
+}

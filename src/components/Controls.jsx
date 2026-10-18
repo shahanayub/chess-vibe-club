@@ -24,7 +24,7 @@ export default function Controls({
         disabled={!canUndo}
         className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all min-h-[44px] ${
           canUndo
-            ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-xs'
+            ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer shadow-xs'
             : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
         }`}
         aria-label="Undo last move"
@@ -52,7 +52,7 @@ export default function Controls({
         <button
           type="button"
           onClick={onFlip}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-xs sm:text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-xs min-h-[44px] transition-all"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-xs sm:text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer shadow-xs min-h-[44px] transition-all"
           aria-label="Flip board orientation"
           title="Flip board orientation"
         >
@@ -78,7 +78,7 @@ export default function Controls({
       <button
         type="button"
         onClick={onNewGame}
-        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer shadow-xs min-h-[44px] transition-all"
+        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:ring-offset-2 cursor-pointer shadow-xs min-h-[44px] transition-all"
         aria-label="Start new game"
       >
         <svg

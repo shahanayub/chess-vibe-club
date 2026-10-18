@@ -9,6 +9,7 @@ import PromotionPicker from './PromotionPicker';
  */
 export default function BoardPanel({
   fen,
+  turn = 'w',
   orientation = 'white',
   onPieceDrop,
   canDragPiece,
@@ -36,12 +37,14 @@ export default function BoardPanel({
     return opts;
   }, [fen, orientation, onPieceDrop, canDragPiece, customSquareStyles]);
 
+  const boardAriaLabel = `Chess Board — ${turn === 'w' ? 'White' : 'Black'} to move`;
+
   return (
     <div
       className="relative w-full max-w-[640px] aspect-square mx-auto rounded-lg overflow-hidden shadow-md border border-slate-200 bg-white"
       data-testid="chessboard-panel"
       role="region"
-      aria-label="Interactive Chess Board"
+      aria-label={boardAriaLabel}
     >
       <Chessboard options={chessboardOptions} />
 

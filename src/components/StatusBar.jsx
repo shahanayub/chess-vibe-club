@@ -35,11 +35,11 @@ export default function StatusBar({ status }) {
       aria-live="polite"
       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border shadow-sm transition-colors duration-200 ${containerStyles}`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         {/* Turn Dot indicator for active games */}
         {!isGameOver ? (
           <span
-            className={`inline-block w-4 h-4 rounded-full border shadow-xs ${
+            className={`inline-block w-4 h-4 rounded-full border shadow-xs shrink-0 ${
               turn === 'w' ? 'bg-white border-slate-400' : 'bg-slate-900 border-slate-900'
             }`}
             aria-hidden="true"
@@ -101,14 +101,14 @@ export default function StatusBar({ status }) {
         ) : null}
 
         {/* Status text message */}
-        <span className="text-sm sm:text-base font-semibold tracking-tight">
+        <span className="text-sm sm:text-base font-semibold tracking-tight truncate">
           {message}
         </span>
       </div>
 
       {/* State Badge */}
       <span
-        className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${badgeStyles}`}
+        className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border uppercase tracking-wider shrink-0 ${badgeStyles}`}
       >
         {badgeLabel}
       </span>
