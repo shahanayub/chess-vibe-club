@@ -1,11 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { Chess } from 'chess.js';
 import { useChessGame } from './hooks/useChessGame';
 import BoardPanel from './components/BoardPanel';
 import StatusBar from './components/StatusBar';
 import MoveHistory from './components/MoveHistory';
 import Controls from './components/Controls';
 import ConfirmModal from './components/ConfirmModal';
-
+import HowToPlayModal from './components/HowToPlayModal';
+import { playMoveSound } from './hooks/sound';
 export default function App() {
   const {
     fen,
@@ -25,6 +27,73 @@ export default function App() {
   } = useChessGame();
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  // ── How to Play (remembered for the session) ──
+const [isHelpOpen, setIsHelpOpen] = useState(() => {
+  try { return sessionStorage.getItem('howToPlayDismissed') !== '1'; }
+  catch { return true; }
+});
+const closeHelp = useCallback(() => {
+  setIsHelpOpen(false);
+  try { sessionStorage.setItem('howToPlayDismissed', '1'); } catch {}
+}, []);
+
+// ── Sounds: only when a new move is added (not on undo / reload restore) ──
+const prevLen = useRef(history.length);
+useEffect(() => {
+  if (history.length > prevLen.current) {
+    const last = history[history.length - 1];
+    playMoveSound(typeof last === 'string' ? last : last?.san, isGameOver);
+  }
+  prevLen.current = history.length;
+}, [history, isGameOver]);
+
+// ── Legal move highlighting ──
+const [selected, setSelected] = useState(null);
+const boardWrapRef = useRef(null);
+
+const targets = useMemo(() => {
+  if (!selected) return new Map();
+  const moves = new Chess(fen).moves({ square: selected, verbose: true });
+  return new Map(moves.map((m) => [m.to, m.flags.includes('c') || m.flags.includes('e')]));
+}, [selected, fen]);
+
+const squareStyles = useMemo(() => {
+  const s = {};
+  if (selected) s[selected] = { background: 'rgba(255, 235, 59, 0.55)' };
+  targets.forEach((isCapture, sq) => {
+    s[sq] = isCapture
+      ? { background: 'rgba(239, 68, 68, 0.55)' }
+      : { background: 'radial-gradient(circle, rgba(0,0,0,0.25) 22%, transparent 24%)' };
+  });
+  return s;
+}, [selected, targets]);
+
+// clear on any position change (move, undo, new game)
+useEffect(() => { setSelected(null); }, [fen]);
+
+// clear when clicking outside the board
+useEffect(() => {
+  const onDown = (e) => {
+    if (boardWrapRef.current && !boardWrapRef.current.contains(e.target)) setSelected(null);
+  };
+  document.addEventListener('pointerdown', onDown);
+  return () => document.removeEventListener('pointerdown', onDown);
+}, []);
+
+const handleSquareClick = useCallback(
+  ({ square }) => {
+    if (isGameOver || pendingPromotion) return;
+    if (selected && targets.has(square)) {
+      makeMove(selected, square);
+      setSelected(null);
+      return;
+    }
+    const p = new Chess(fen).get(square);
+    setSelected(p && p.color === turn && square !== selected ? square : null);
+  },
+  [isGameOver, pendingPromotion, selected, targets, makeMove, fen, turn]
+);
 
   const handlePieceDrop = useCallback(
     ({ sourceSquare, targetSquare }) => {
@@ -73,6 +142,8 @@ export default function App() {
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
           ♟ Chess
         </h1>
+
+
         <p className="mt-1 text-xs sm:text-sm text-slate-500">
           2-Player Local Game
         </p>
@@ -97,16 +168,20 @@ export default function App() {
           </div>
 
           {/* Board — square, full width, max 640px (design.md) */}
-          <BoardPanel
-            fen={fen}
-            turn={turn}
-            orientation={orientation}
-            onPieceDrop={handlePieceDrop}
-            canDragPiece={handleCanDragPiece}
-            pendingPromotion={pendingPromotion}
-            onPromotionSelect={confirmPromotion}
-            onPromotionCancel={cancelPromotion}
-          />
+          <div ref={boardWrapRef}>
+  <BoardPanel
+    fen={fen}
+    turn={turn}
+    orientation={orientation}
+    onPieceDrop={handlePieceDrop}
+    onSquareClick={handleSquareClick}
+    canDragPiece={handleCanDragPiece}
+    customSquareStyles={squareStyles}
+    pendingPromotion={pendingPromotion}
+    onPromotionSelect={confirmPromotion}
+    onPromotionCancel={cancelPromotion}
+  />
+</div>
 
           {/* Controls – below board on mobile/tablet */}
           <div className="lg:hidden">

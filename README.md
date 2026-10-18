@@ -90,14 +90,6 @@ npm run preview
 
 ---
 
-## 🚢 Deployment
-
-The application is fully client-side and builds to static assets in `dist/` with relative asset links (`base: './'`).
-
-- **GitHub Pages**: Deploy the `dist/` folder via GitHub Actions or the `gh-pages` branch.
-- **Vercel / Netlify**: Connect repository, set build command to `npm run build` and output directory to `dist`.
-
----
 
 ## 📄 License
 MIT

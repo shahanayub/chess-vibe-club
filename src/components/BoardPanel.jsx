@@ -12,6 +12,7 @@ export default function BoardPanel({
   turn = 'w',
   orientation = 'white',
   onPieceDrop,
+  onSquareClick,
   canDragPiece,
   customSquareStyles = {},
   pendingPromotion = null,
@@ -30,12 +31,15 @@ export default function BoardPanel({
     if (onPieceDrop) {
       opts.onPieceDrop = onPieceDrop;
     }
+    if (onSquareClick) {
+      opts.onSquareClick = onSquareClick;
+    }
     if (canDragPiece) {
       opts.canDragPiece = canDragPiece;
     }
 
     return opts;
-  }, [fen, orientation, onPieceDrop, canDragPiece, customSquareStyles]);
+  }, [fen, orientation, onPieceDrop, onSquareClick, canDragPiece, customSquareStyles]);
 
   const boardAriaLabel = `Chess Board — ${turn === 'w' ? 'White' : 'Black'} to move`;
 
