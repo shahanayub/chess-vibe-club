@@ -26,19 +26,76 @@ export function useChessGame(initialPgn = '', initialOrientation = 'white') {
   // Derived state
   const fen = useMemo(() => game.fen(), [game]);
   const turn = useMemo(() => game.turn(), [game]);
+  const isGameOver = useMemo(() => game.isGameOver(), [game]);
+  const history = useMemo(() => game.history(), [game]);
 
   const flipOrientation = useCallback(() => {
     setOrientation((prev) => (prev === 'white' ? 'black' : 'white'));
   }, []);
 
+  /**
+   * Attempts to make a move via chess.js (RULE-003, FR-002).
+   * Returns true if legal, false if illegal or game over.
+   */
+  const makeMove = useCallback(
+    (from, to, promotion = 'q') => {
+      if (game.isGameOver()) {
+        return false;
+      }
+
+      const tempGame = new Chess();
+      if (pgn && pgn.trim() !== '') {
+        try {
+          tempGame.loadPgn(pgn);
+        } catch {
+          return false;
+        }
+      }
+
+      try {
+        const legalMoves = tempGame.moves({ verbose: true });
+        const matchingMove = legalMoves.find(
+          (m) => m.from === from && m.to === to
+        );
+
+        if (!matchingMove) {
+          return false;
+        }
+
+        const moveConfig = {
+          from,
+          to,
+          ...(matchingMove.promotion ? { promotion: promotion || 'q' } : {}),
+        };
+
+        const result = tempGame.move(moveConfig);
+        if (!result) {
+          return false;
+        }
+
+        // Update single source of truth PGN state
+        setPgn(tempGame.pgn());
+        return true;
+      } catch (err) {
+        // Prevent any chess.js exception from crashing UI (RULE-011)
+        console.error('Move validation error:', err);
+        return false;
+      }
+    },
+    [game, pgn]
+  );
+
   return {
     game,
     fen,
     turn,
+    isGameOver,
+    history,
     pgn,
     setPgn,
     orientation,
     setOrientation,
     flipOrientation,
+    makeMove,
   };
 }

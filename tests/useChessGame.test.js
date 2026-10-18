@@ -26,3 +26,4 @@ describe('Game state derivation logic (FR-001, TR-002)', () => {
     expect(chess.history()).toEqual(['e4', 'e5', 'Nf3']);
   });
 });
+

@@ -1,11 +1,36 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useChessGame } from './hooks/useChessGame';
 import BoardPanel from './components/BoardPanel';
 
 export default function App() {
-  const { fen, orientation, turn } = useChessGame();
+  const { fen, orientation, turn, isGameOver, makeMove } = useChessGame();
 
-  const turnLabel = turn === 'w' ? 'White to move' : 'Black to move';
+  const handlePieceDrop = useCallback(
+    ({ sourceSquare, targetSquare }) => {
+      if (!targetSquare || sourceSquare === targetSquare) {
+        return false;
+      }
+      return makeMove(sourceSquare, targetSquare);
+    },
+    [makeMove]
+  );
+
+  const handleCanDragPiece = useCallback(
+    ({ piece }) => {
+      if (isGameOver || !piece?.pieceType) {
+        return false;
+      }
+      // Only the current turn's pieces are draggable (FR-002)
+      return piece.pieceType[0] === turn;
+    },
+    [isGameOver, turn]
+  );
+
+  const turnLabel = isGameOver
+    ? 'Game Over'
+    : turn === 'w'
+    ? 'White to move'
+    : 'Black to move';
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center py-6 px-4 sm:px-6 lg:px-8">
@@ -36,12 +61,17 @@ export default function App() {
             </span>
           </div>
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-            Standard Game
+            {isGameOver ? 'Finished' : 'In Progress'}
           </span>
         </section>
 
         {/* Board Panel */}
-        <BoardPanel fen={fen} orientation={orientation} />
+        <BoardPanel
+          fen={fen}
+          orientation={orientation}
+          onPieceDrop={handlePieceDrop}
+          canDragPiece={handleCanDragPiece}
+        />
       </main>
     </div>
   );
